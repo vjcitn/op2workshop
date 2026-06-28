@@ -27,6 +27,14 @@ jobs:
           BiocManager::install(c("remotes", "rcmdcheck"), ask = FALSE)
           saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
         shell: Rscript {0}
+
+      - name: grab ontoProc2 in isolation
+        run: |
+          options(repos = c(CRAN = Sys.getenv("CRAN")))
+          remotes::install_github("vjcitn/ontoProc2")
+          Sys.sleep(5)
+          remotes::install_deps(dependencies = TRUE, repos = BiocManager::repositories(), upgrade = "never")
+          BiocManager::install(ask = FALSE, update = TRUE)
         
       - name: Cache R packages
         if: runner.os != 'Windows'
@@ -41,7 +49,7 @@ jobs:
           GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
           options(repos = c(CRAN = Sys.getenv("CRAN")))
-          remotes::install_deps(dependencies = TRUE, repos = BiocManager::repositories())
+          remotes::install_deps(dependencies = TRUE, repos = BiocManager::repositories(), upgrade="never")
           BiocManager::install(ask = FALSE, update = TRUE)
         shell: Rscript {0}
 
