@@ -1,0 +1,283 @@
+---
+prefer-html: true
+title: ontoProc2 workshop for Bioc2026
+author: VJ Carey
+vignette: >
+  %\VignetteEngine{quarto::html}
+  %\VignetteIndexEntry{ontoProc2 workshop for Bioc2026}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document:
+    highlight: pygments
+    number_sections: yes
+    theme: united
+    toc: yes
+---
+
+# Ontology workshop for Bioc2026 with ontoProc2
+
+We begin with an examples of an ontology for disease.
+
+## Phenotype Vocabulary
+
+At the boundaries of knowledge, it is important to establish conventions
+to support clear communication.  "Ontology" is a field of information
+science devoted to formal specification of vocabularies and associated
+conceptual hierarchies.  Practical use of ontologies in genomic data
+science started with Gene Ontology but has grown to involve frequent use of
+ontologies for
+
+- cell types
+- diseases
+- experimental factors and designs.
+
+### The MONDO disease ontology
+
+Here is an "ontological report" on the [MONDO](https://mondo.monarchinitiative.org/)
+term "exocrine pancreatic carcinoma", provided
+by the European Bioinformatics Institute Ontology Lookup Service:
+
+![mondo snapshot](images/mondoExocPanc.jpg){width=650px}
+
+Key elements:
+
+- definition of the short phrase or "term"
+- "IRI": a URL-like entity that can be used for web access
+- "CURIE": compact universal resource identifier of fixed length (MONDO:0005192)
+- snapshot of conceptual hierarchy "tree"
+
+Let's program with the MONDO ontology.  We need to have the devtools and
+remotes packages installed, and then we can install the ontoProc2
+package with `BiocManager::install("vjcitn/ontoProc2")`.  Once this is
+done, the following will succeed.
+
+```{r lkmon1, message=FALSE}
+try(BiocManager::install("vjcitn/ontoProc2"))
+library(ontoProc2)
+mondo = semsql_connect(ontology="mondo") # download on first attempt
+report(mondo)
+```
+
+To get precise about phenotypes of interest, we generally want to
+be able to manipulate the associated CURIEs.  To learn them for a
+word or phrase of interest, `search_labels` can be used.
+We'll focus on "asthma" for now.
+
+```{r lkas1}
+al = search_labels(mondo, "asthma")
+al
+```
+
+Now that we know an associated CURIE, we can get additional information
+about its position in the conceptual hierarchy of diseases defined in MONDO.
+
+```{r lkas2}
+ainf = get_term_info(mondo, "MONDO:0004979") 
+str(ainf)
+tta = get_descendants(mondo, "MONDO:0004979")
+str(tta)
+```
+
+We will use an alternate representation of the MONDO ontology
+that is useful for visualizing relationships.
+
+```{r lkoi}
+data("monoi", package="op2workshop")
+onto_plot2(monoi, tta$id, cex=.55)
+```
+
+### Review
+
+- Ontologies are structured vocabularies characterizing a conceptual domain
+- A given term maps to a fixed-length CURIE
+- Web pages about ontological terms are addressed with IRIs
+- The ontoProc2 package supports interactive work with ontologies
+
+### Exercises
+
+1. Use `search_labels` to acquire information and CURIEs related to
+a disease of interest, such as hypertension, obesity.
+
+2. Produce a plot of the "conceptual neighborhood" of the disease
+you chose.  You will need a vector of MONDO CURIEs to pass
+to the `onto_plot2` function.
+
+
+## GWAS basics
+
+Here's an example paper for a genome-wide association study.
+
+![Johnson title](images/plateAggTitle.jpg){width=650px}
+
+This paper provides an unusually explicit presentation of the basic result: the distribution
+of a continuous outcome is shown to vary systematically by SNP genotype.
+
+![Johnson boxplots](images/plateletAgg.jpg){width=650px}
+
+To help unearth the mechanisms underlying the observed relationship,
+reference information on chromatin accessibility and transcription factor binding 
+in the vicinity of the main "hit" on chromosome 10 is
+provided.
+
+![Johnson binding](images/plateAggTFs.jpg){width=650px}
+
+A basic aim of this section is to mobilize Bioconductor and other
+genomics data science resources to improve interpretability of GWAS results.
+
+## GWAS "Catalog"
+
+We take for granted the existence of a catalog of genome wide association
+studies (GWAS). We will start to unpack this research concept.
+This table gives a flavor of topics that have been studied in this way.
+
+```{r lkcat, message=FALSE}
+library(gwascat)
+library(DT)
+library(S4Vectors)
+library(op2workshop)
+data("gwc_110626", package="op2workshop")
+#
+# the following code produces an arbitrary collection of records
+# from the gwas catalog, one per study instead of one per SNP
+#
+wrap_pmid = function(x)
+  sprintf("<a href='https://pubmed.ncbi.nlm.nih.gov/%s' target='_blank'>%s</a>", x, x)
+dids = (1:1000)[-which(duplicated(gwc_110626$STUDY[1:1000]))]
+mc = mcols(gwc_110626[dids])
+sel = as.data.frame(mc[, c("STUDY", "PUBMEDID","MAPPED_TRAIT_URI","SNPS",
+  "INITIAL SAMPLE SIZE", "REPLICATION SAMPLE SIZE")])
+sel$PUBMEDID = sapply(sel$PUBMEDID, wrap_pmid)
+datatable(sel, escape = FALSE)
+```
+
+We've organized the table by 'STUDY' and 'PUBMEDID'.  Any given
+study will produce a collection of "associations": typically
+these are single-nucleotide variants for which the allele counts
+are statistically associated with presence or magnitude of
+some outcome.  It is reasonable to organize the entire
+catalog as a "GRanges" object.
+
+```{r lkgr1}
+gwc_110626
+```
+
+Our use of ontology above does not fully prepare us for the
+values found in "DISEASE/TRAIT" field of the catalog.
+
+```{r lktrait}
+unique(grep("[Aa]sthma", gwc_110626$`DISEASE/TRAIT`,value=TRUE)) |> head(10)
+```
+
+### Exercises
+
+1. For the records identified above, in which the disease phrase includes 'asthma',
+what CURIEs are employed in the catalog?  Do they make sense?
+
+2. Pick a phenotype of epidemiological interest, determine a relevant CURIE, and
+find it in the catalog.  How many SNPs are associated with variation in the selected phenotype?
+
+## Manhattan plots
+
+The summary of a genome-wide association study plots $-\log10 p$
+for the test of no association between SNP genotype and outcome,
+against the chromsome location of the SNP.
+
+We have a simple utility function for producing such plots for
+studies in the GWAS catalog.
+
+```{r lkman1, message=FALSE}
+data("gwc_110626", package="op2workshop")
+make_manh("GCST90002322", gwc_110626)
+```
+
+### Exercises
+
+1. Produce the manhattan plot for a study of interest to you.
+Add the study title to your display.  Hint: apply `ggtitle`.
+
+2. Arrange for the gene symbols to be plotted on the manhattan
+plot for "hits" of interest to you.
+
+3. (Advanced) Modify `make_manh` to produce a plotly display in
+which text such as gene name and SNP position are shown on hover.
+
+
+## Functional Interpretation
+
+We return to the colocalization of GWAS hit and TF binding peaks
+from the Johnson paper.
+
+![Johnson binding](images/plateAggTFs.jpg){width=650px}
+
+We will use the bedbaser package to interact with
+a large library of "BED" files -- genomic intervals with
+scores measuring experimental effects observed within these intervals.
+
+```{r lkbedbase, message=FALSE}
+library(bedbaser)
+library(GenomicRanges)
+
+# Initialize the BEDbase API client
+bb <- BEDbase()
+```
+
+We search the library for bed files for ChIP-seq
+experiments involving EP300 in K562 cells.
+Note the limit parameter.  This is an arbitrary
+selection reflecting experiences with long delays
+with large values of this parameter.
+
+```{r lksh}
+ep300_search <- bb_bed_text_search(
+  bb,
+  query = "EP300 ChIP-seq K562 hg38",
+  limit = 20
+)
+```
+
+Review the results in an interactive table.  The search procedure 
+[is documented](https://docs.bedbase.org/bedbase/user/bedbase-search/).
+
+```{r lkeptab}
+DT::datatable(as.data.frame(ep300_search)[,-2])
+```
+
+Use the search/filter box at the top to confine attention to records
+involving EP300.
+We will retrieve the bed file with id "80179a031d3b0799669bd78fef60584e".
+
+```{r getgr}
+k562_ep300_peaks <- bb_to_granges(bb, bed_id = "80179a031d3b0799669bd78fef60584e")
+k562_ep300_peaks
+```
+
+The SNP identified in the plot is expressed as a GRanges, so that we can check
+for its relationship to an EP300 peak.
+```{r lkhit}
+target_variant <- GRanges(
+  seqnames = "chr10",
+  ranges = IRanges(start = 119250744, end = 119250744)
+)
+subsetByOverlaps(k562_ep300_peaks, target_variant)
+```
+
+This result is consistent with the finding in the figure above.
+
+### Exercises
+
+1.  The `ep300_search` table produced above has results for other cell lines.
+Are there other cell lines in which a similar finding arises?
+
+2.  Use similar methods to check binding patterns for other transcription factors 
+whose binding might be disrupted by the target variant.  You will need to
+modify the query for `bb_bed_text_search` and acquire peak sets.
+
+3.  "GWAS mini journal club".  Use the GWAS catalog to identify studies, genes, and SNPs
+of interest to you.  Prepare a short presentation on 
+
+- the phenotype or disease under study,
+- the population in which the study was conducted, and the study design,
+- the minor allele frequencies of identified "hits",
+- the scope of associations discovered,
+- prospects for functional interpretation of the associations using bedbase or other
+tools.
