@@ -25,7 +25,7 @@ jobs:
         run: |
           options(repos = c(CRAN = Sys.getenv("CRAN")))
           BiocManager::install(c("remotes", "rcmdcheck"), ask = FALSE)
-          saveRDS(remotes::dev_package_deps(dependencies = TRUE, upgrade="never"), ".github/depends.Rds", version = 2)
+          saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
         shell: Rscript {0}
 
       - name: grab ontoProc2 in isolation
