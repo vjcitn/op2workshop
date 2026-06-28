@@ -42,7 +42,6 @@ jobs:
             Sys.sleep(30 * i)
           }
           remotes::install_deps(dependencies = TRUE, repos = BiocManager::repositories(), upgrade = "never")
-          BiocManager::install(ask = FALSE, update = TRUE)
         shell: Rscript {0}
 
       - name: Check
