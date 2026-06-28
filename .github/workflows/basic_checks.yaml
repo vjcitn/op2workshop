@@ -33,16 +33,20 @@ jobs:
         run: |
           options(repos = c(CRAN = Sys.getenv("CRAN")))
           BiocManager::install(c("remotes", "rcmdcheck"), ask = FALSE)
-          retry <- function(expr, n = 5, wait = 30) {
+          retry <- function(f, n = 5, wait = 30) {
             for (i in seq_len(n)) {
-              ok <- tryCatch({ expr; TRUE }, error = function(e) { message(e); FALSE })
+              ok <- tryCatch({ f(); TRUE }, error = function(e) { message(e); FALSE })
               if (ok) return(invisible(NULL))
               if (i < n) Sys.sleep(wait * i)
             }
             stop("failed after ", n, " attempts")
           }
-          retry(remotes::install_github("vjcitn/ontoProc2", upgrade = "never"))
-          retry(remotes::install_deps(dependencies = TRUE, repos = BiocManager::repositories(), upgrade = "never"))
+          retry(function() remotes::install_github("vjcitn/ontoProc2", upgrade = "never"))
+          BiocManager::install(
+            c("knitr", "BiocStyle", "testthat", "ontologyIndex", "gwascat",
+              "bedbaser", "DT", "GenomicRanges", "S4Vectors", "ggmanh"),
+            ask = FALSE, update = FALSE
+          )
         shell: Rscript {0}
 
       - name: Check
