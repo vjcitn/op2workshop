@@ -25,7 +25,7 @@ jobs:
         run: |
           options(repos = c(CRAN = Sys.getenv("CRAN")))
           BiocManager::install(c("remotes", "rcmdcheck"), ask = FALSE)
-          saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
+          saveRDS(remotes::dev_package_deps(dependencies = TRUE, upgrade="never"), ".github/depends.Rds", version = 2)
         shell: Rscript {0}
 
       - name: grab ontoProc2 in isolation
@@ -35,6 +35,7 @@ jobs:
           Sys.sleep(5)
           remotes::install_deps(dependencies = TRUE, repos = BiocManager::repositories(), upgrade = "never")
           BiocManager::install(ask = FALSE, update = TRUE)
+        shell: Rscript {0}
         
       - name: Cache R packages
         if: runner.os != 'Windows'
@@ -43,15 +44,6 @@ jobs:
           path: /usr/local/lib/R/site-library
           key: ${{ env.cache-version }}-${{ runner.os }}-r-${{ hashFiles('.github/depends.Rds') }}
           restore-keys: ${{ env.cache-version }}-${{ runner.os }}-r-
-
-      - name: Install dependencies
-        env:
-          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          options(repos = c(CRAN = Sys.getenv("CRAN")))
-          remotes::install_deps(dependencies = TRUE, repos = BiocManager::repositories(), upgrade="never")
-          BiocManager::install(ask = FALSE, update = TRUE)
-        shell: Rscript {0}
 
       - name: Check
         env:
