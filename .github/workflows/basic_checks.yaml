@@ -43,7 +43,7 @@ jobs:
           }
           retry(function() remotes::install_github("vjcitn/ontoProc2", upgrade = "never"))
           BiocManager::install(
-            c("knitr", "BiocStyle", "testthat", "ontologyIndex", "gwascat",
+            c("knitr", "BiocStyle", "testthat", "quarto", "ontologyIndex", "gwascat",
               "bedbaser", "DT", "GenomicRanges", "S4Vectors", "ggmanh"),
             ask = FALSE, update = FALSE
           )
