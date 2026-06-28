@@ -19,31 +19,31 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v6
 
-      - name: Query dependencies and update old packages
-        env:
-          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          options(repos = c(CRAN = Sys.getenv("CRAN")))
-          BiocManager::install(c("remotes", "rcmdcheck"), ask = FALSE)
-          saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
-        shell: Rscript {0}
-
-      - name: grab ontoProc2 in isolation
-        run: |
-          options(repos = c(CRAN = Sys.getenv("CRAN")))
-          remotes::install_github("vjcitn/ontoProc2")
-          Sys.sleep(5)
-          remotes::install_deps(dependencies = TRUE, repos = BiocManager::repositories(), upgrade = "never")
-          BiocManager::install(ask = FALSE, update = TRUE)
-        shell: Rscript {0}
-        
       - name: Cache R packages
         if: runner.os != 'Windows'
         uses: actions/cache@v5
         with:
           path: /usr/local/lib/R/site-library
-          key: ${{ env.cache-version }}-${{ runner.os }}-r-${{ hashFiles('.github/depends.Rds') }}
+          key: ${{ env.cache-version }}-${{ runner.os }}-r-${{ hashFiles('DESCRIPTION') }}
           restore-keys: ${{ env.cache-version }}-${{ runner.os }}-r-
+
+      - name: Install dependencies
+        env:
+          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          options(repos = c(CRAN = Sys.getenv("CRAN")))
+          BiocManager::install(c("remotes", "rcmdcheck"), ask = FALSE)
+          for (i in 1:5) {
+            result <- tryCatch({
+              remotes::install_github("vjcitn/ontoProc2", upgrade = "never")
+              TRUE
+            }, error = function(e) { message(e); FALSE })
+            if (result) break
+            Sys.sleep(30 * i)
+          }
+          remotes::install_deps(dependencies = TRUE, repos = BiocManager::repositories(), upgrade = "never")
+          BiocManager::install(ask = FALSE, update = TRUE)
+        shell: Rscript {0}
 
       - name: Check
         env:
