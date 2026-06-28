@@ -60,7 +60,7 @@ jobs:
 
       - name: Build pkgdown
         run: |
-           PATH=$PATH:$HOME/bin/ Rscript -e 'pkgdown::build_site(".")'
+           PATH=$PATH:$HOME/bin/ Rscript -e 'pkgdown::build_site(".", quiet = FALSE)'
 
       - name: Upload pkgdown artifact
         if: github.event_name == 'push'
