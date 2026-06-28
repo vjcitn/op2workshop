@@ -1,6 +1,6 @@
 Package: op2workshop
 Title: ontoProc2 workshop for Bioc2026
-Version: 0.0.1
+Version: 0.0.2
 Authors@R:
     person(given = "Vince",
            family = "Carey",
@@ -8,7 +8,7 @@ Authors@R:
            email = "stvjc@channing.harvard.edu",
            comment = c(ORCID = "0000-0003-4046-0063"))
 Description: Documents and data for a workshop on ontoProc2
-Depends: R (>= 4.5.0), ontoProc2
+Depends: R (>= 4.5.0), vjcitn/ontoProc2
 Suggests: knitr, BiocStyle, testthat, quarto, ontologyIndex, gwascat,
 	bedbaser, DT, GenomicRanges, S4Vectors, ggmanh
 License: Artistic-2.0
@@ -19,5 +19,3 @@ URL: https://github.com/vjcitn/op2workshop
 BugReports: https://github.com/vjcitn/op2workshop/issues
 Config/roxygen2/version: 8.0.0
 DockerImage: ghcr.io/vjcitn/op2workshop:latest
-Remotes:
-	vjcitn/ontoProc2
