@@ -27,21 +27,18 @@ jobs:
           key: ${{ env.cache-version }}-${{ runner.os }}-r-${{ hashFiles('DESCRIPTION') }}
           restore-keys: ${{ env.cache-version }}-${{ runner.os }}-r-
 
-      - name: Install dependencies
+      - name: Clone ontoProc2
         env:
           GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+        run: git clone https://x-access-token:${GITHUB_PAT}@github.com/vjcitn/ontoProc2.git $HOME/ontoProc2
+
+      - name: Install dependencies
         run: |
           options(repos = c(CRAN = Sys.getenv("CRAN")))
           BiocManager::install(c("remotes", "rcmdcheck"), ask = FALSE)
-          retry <- function(f, n = 5, wait = 30) {
-            for (i in seq_len(n)) {
-              ok <- tryCatch({ f(); TRUE }, error = function(e) { message(e); FALSE })
-              if (ok) return(invisible(NULL))
-              if (i < n) Sys.sleep(wait * i)
-            }
-            stop("failed after ", n, " attempts")
-          }
-          retry(function() remotes::install_github("vjcitn/ontoProc2", upgrade = "never"))
+          remotes::install_local(file.path(Sys.getenv("HOME"), "ontoProc2"),
+                                 dependencies = TRUE,
+                                 repos = BiocManager::repositories(), upgrade = "never")
           BiocManager::install(
             c("knitr", "BiocStyle", "testthat", "quarto", "ontologyIndex", "gwascat",
               "bedbaser", "DT", "GenomicRanges", "S4Vectors", "ggmanh"),
