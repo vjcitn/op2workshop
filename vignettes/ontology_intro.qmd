@@ -187,7 +187,7 @@ studies in the GWAS catalog.
 
 ```{r lkman1, message=FALSE}
 data("gwc_110626", package="op2workshop")
-make_manh("GCST90002322", gwc_110626)
+op2workshop::make_manh("GCST90002322", gwc_110626)
 ```
 
 ### Exercises
