@@ -46,15 +46,14 @@ done, the following will succeed.
 try(BiocManager::install("vjcitn/ontoProc2"))
 ```
 
-    ── R CMD build ─────────────────────────────────────────────────────────────────
-    * checking for file ‘/tmp/RtmpyXpuqy/remotes67374ee0806/vjcitn-ontoProc2-d875229/DESCRIPTION’ ... OK
-    * preparing ‘ontoProc2’:
-    * checking DESCRIPTION meta-information ... OK
-    * checking for LF line-endings in source and make files and shell scripts
-    * checking for empty or unneeded directories
-    Removed empty directory ‘ontoProc2/.github’
-    * looking to see if a ‘data/datalist’ file should be added
-    * building ‘ontoProc2_0.99.25.tar.gz’
+    Error : Failed to install 'ontoProc2' from GitHub:
+      HTTP error 429.
+      This endpoint is temporarily being throttled. Please try again later. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)
+
+      Rate limit remaining: 5000/5000
+      Rate limit reset at: 2026-06-29 12:45:03 UTC
+
+      
 
 ``` r
 
@@ -69,7 +68,7 @@ report(mondo)
 
     Connection Details:
     ----------------------------------------
-      Database path:    /github/home/.cache/R/BiocFileCache/1901475480f_mondo.db
+      Database path:    /github/home/.cache/R/BiocFileCache/190337a2b7f_mondo.db
       Ontology prefix:  MONDO
       Status:           ✓   Connected
 
