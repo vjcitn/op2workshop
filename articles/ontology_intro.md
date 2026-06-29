@@ -50,8 +50,8 @@ try(BiocManager::install("vjcitn/ontoProc2"))
       HTTP error 429.
       This endpoint is temporarily being throttled. Please try again later. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)
 
-      Rate limit remaining: 5000/5000
-      Rate limit reset at: 2026-06-29 12:45:03 UTC
+      Rate limit remaining: 4997/5000
+      Rate limit reset at: 2026-06-29 16:32:46 UTC
 
       
 
@@ -68,7 +68,7 @@ report(mondo)
 
     Connection Details:
     ----------------------------------------
-      Database path:    /github/home/.cache/R/BiocFileCache/190337a2b7f_mondo.db
+      Database path:    /github/home/.cache/R/BiocFileCache/1904607528a_mondo.db
       Ontology prefix:  MONDO
       Status:           ✓   Connected
 
