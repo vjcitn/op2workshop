@@ -47,7 +47,7 @@ try(BiocManager::install("vjcitn/ontoProc2"))
 ```
 
     ── R CMD build ─────────────────────────────────────────────────────────────────
-    * checking for file ‘/tmp/RtmpyRL0hl/remotes67318a40f69/vjcitn-ontoProc2-d875229/DESCRIPTION’ ... OK
+    * checking for file ‘/tmp/RtmpyXpuqy/remotes67374ee0806/vjcitn-ontoProc2-d875229/DESCRIPTION’ ... OK
     * preparing ‘ontoProc2’:
     * checking DESCRIPTION meta-information ... OK
     * checking for LF line-endings in source and make files and shell scripts
@@ -69,7 +69,7 @@ report(mondo)
 
     Connection Details:
     ----------------------------------------
-      Database path:    /github/home/.cache/R/BiocFileCache/190193d699_mondo.db
+      Database path:    /github/home/.cache/R/BiocFileCache/1901475480f_mondo.db
       Ontology prefix:  MONDO
       Status:           ✓   Connected
 
