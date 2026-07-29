@@ -1,6 +1,6 @@
 Package: op2workshop
 Title: ontoProc2 workshop for Bioc2026
-Version: 0.0.4
+Version: 0.0.5
 Authors@R:
     person(given = "Vince",
            family = "Carey",
