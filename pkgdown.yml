@@ -1,9 +1,9 @@
 pandoc: '3.10'
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   ontology_intro: ontology_intro.html
-last_built: 2026-06-29T15:44Z
+last_built: 2026-07-29T22:52Z
 urls:
   reference: https://vjcitn.github.io/op2workshop/reference
   article: https://vjcitn.github.io/op2workshop/articles

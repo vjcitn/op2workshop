@@ -43,21 +43,7 @@ done, the following will succeed.
 
 ``` r
 
-try(BiocManager::install("vjcitn/ontoProc2"))
-```
-
-    Error : Failed to install 'ontoProc2' from GitHub:
-      HTTP error 429.
-      This endpoint is temporarily being throttled. Please try again later. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service)
-
-      Rate limit remaining: 4997/5000
-      Rate limit reset at: 2026-06-29 16:32:46 UTC
-
-      
-
-``` r
-
-library(ontoProc2)
+library(ontoProc2)  # installed in image for workshop
 mondo = semsql_connect(ontology="mondo") # download on first attempt
 report(mondo)
 ```
@@ -68,7 +54,7 @@ report(mondo)
 
     Connection Details:
     ----------------------------------------
-      Database path:    /github/home/.cache/R/BiocFileCache/1904607528a_mondo.db
+      Database path:    /github/home/.cache/R/BiocFileCache/ad026251366_mondo.db
       Ontology prefix:  MONDO
       Status:           ✓   Connected
 
@@ -401,7 +387,7 @@ k562_ep300_peaks <- bb_to_granges(bb, bed_id = "80179a031d3b0799669bd78fef60584e
     'getOption("repos")' replaces Bioconductor standard repositories, see
     'help("repositories", package = "BiocManager")' for details.
     Replacement repositories:
-        CRAN: https://p3m.dev/cran/__linux__/noble/2026-06-23
+        CRAN: https://p3m.dev/cran/__linux__/noble/latest
 
 ``` r
 
